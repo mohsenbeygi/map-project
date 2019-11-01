@@ -1,0 +1,23 @@
+{
+  "name": "map_project",
+  "version": "1.0.0",
+  "description": "map routing",
+  "main": "main.js",
+  "start": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohsenbeygi/map-project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mohsenbeygi/map-project/issues"
+  },
+  "homepage": "https://github.com/mohsenbeygi/map-project#readme",
+  "dependencies": {
+    "osm-read": "^0.7.0"
+  }
+}
