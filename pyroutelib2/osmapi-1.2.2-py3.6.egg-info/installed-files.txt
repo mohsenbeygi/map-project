@@ -1,0 +1,9 @@
+../osmapi/OsmApi.py
+../osmapi/__init__.py
+../osmapi/__pycache__/OsmApi.cpython-36.pyc
+../osmapi/__pycache__/__init__.cpython-36.pyc
+PKG-INFO
+SOURCES.txt
+dependency_links.txt
+requires.txt
+top_level.txt
