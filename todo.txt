@@ -1,13 +1,9 @@
-to do:
-
 - get a graph structure from a real world map (most likely from osm)
 
-- choosing the most suitable language
+- path finding algorithm (routing)
 
-- path finding algorithm (high priority)
+- traffic
 
-- adding traffic
-
-- graphiclly representing the path (most likely web based)
+- graphical presentation
  
-Wed 30 Oct  
+Wed 30 Oct  ~  Tue 3 Dec 

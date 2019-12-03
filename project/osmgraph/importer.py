@@ -60,4 +60,5 @@ class GraphImporter(object):
     def _node_properties(self, node_id):
         properties = self.nodes.get(node_id, {})
         properties['coordinate'] = self.coords[node_id]
+        # print(properties)
         return properties
