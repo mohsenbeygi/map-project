@@ -28,6 +28,7 @@
 import sys
 import math
 from loadOsm import LoadOsm
+import gmplot
 
 class Router(object):
   def __init__(self, data):
@@ -129,8 +130,8 @@ if __name__ == "__main__":
   # Test suite - do a little bit of easy routing in birmingham
   data = LoadOsm("car")
 
-  node1 = data.findNode(52.552394,-1.818763)
-  node2 = data.findNode(52.563368,-1.818291)
+  node1 = data.findNode(35.804921, 51.436571)
+  node2 = data.findNode(35.800211, 51.441210)
 
   print(node1)
   print(node2)
@@ -140,10 +141,32 @@ if __name__ == "__main__":
   if result == 'success':
     # list the nodes
     print(route)
+    latitude_list = []
+    longitude_list = []
 
     # list the lat/long
     for i in route:
       node = data.rnodes[i]
-      print("%d: %f,%f" % (i,node[0],node[1]))
+      # print("%d: %f,%f" % (i,node[0],node[1]))
+
+      # drawing on map
+      latitude_list.append(node[0])
+      longitude_list.append(node[1])
+        
+    gmap3 = gmplot.GoogleMapPlotter(35.8027021,51.4408202,14.71) 
+      
+    # scatter method of map object  
+    # scatter points on the google map 
+    # gmap3.scatter( latitude_list, longitude_list, '#db0000', 
+    #                               size = 10, marker = False ) 
+      
+    # Plot method Draw a line in 
+    # between given coordinates 
+    gmap3.plot(latitude_list, longitude_list,  
+               'red', edge_width = 10) 
+      
+    gmap3.draw("gmap.html") 
+
+
   else:
     print("Failed (%s)" % result)
