@@ -118,7 +118,7 @@ class LoadOsm(object):
 
   def parseOsmFile(self, filename):
     result = []
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf8") as f:
       for event, elem in etree.iterparse(f): # events=['end']
         if elem.tag == "node":
           data = self.getElementAttributes(elem)
