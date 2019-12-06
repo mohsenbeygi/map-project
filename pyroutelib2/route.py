@@ -28,6 +28,8 @@
 import sys
 import math
 from loadOsm import LoadOsm
+import mplleaflet
+import matplotlib.pyplot as plt
 
 class Router(object):
   def __init__(self, data):
@@ -129,8 +131,8 @@ if __name__ == "__main__":
   # Test suite - do a little bit of easy routing in birmingham
   data = LoadOsm("car")
 
-  node1 = data.findNode(52.552394,-1.818763)
-  node2 = data.findNode(52.563368,-1.818291)
+  node1 = data.findNode(35.805131, 51.439972)
+  node2 = data.findNode(35.712817, 51.374682)
 
   print(node1)
   print(node2)
@@ -142,8 +144,18 @@ if __name__ == "__main__":
     print(route)
 
     # list the lat/long
+    lons = []
+    lats = []
     for i in route:
       node = data.rnodes[i]
-      print("%d: %f,%f" % (i,node[0],node[1]))
+      lats.append(node[0])
+      lons.append(node[1])
+    fig = plt.figure()    #This is missing in your code.
+    plt.plot(lons, lats, color="purple", linewidth=10) # Draw blue line
+
+    #And after this call the funtion:
+
+    mplleaflet.show(fig=fig)
+
   else:
     print("Failed (%s)" % result)

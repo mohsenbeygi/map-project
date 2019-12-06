@@ -1,0 +1,39 @@
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+  <style>
+    #map332a1b00a6674bdd81650f57e2e04ee1 {
+      height:100%;
+    }
+  </style> 
+</head>
+<body>
+  <div id="map332a1b00a6674bdd81650f57e2e04ee1"></div>
+<script text="text/javascript">
+var map = L.map('map332a1b00a6674bdd81650f57e2e04ee1');
+L.tileLayer(
+  "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {maxZoom:19, attribution: '<a href="https://github.com/jwass/mplleaflet">mplleaflet</a> | Map data (c) <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'}).addTo(map);
+var gjData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "LineString", "coordinates": [[51.4399662, 35.8049782], [51.4399435, 35.8048597], [51.4397973, 35.8041984], [51.439782, 35.8041625], [51.4397181, 35.8040121], [51.4397022, 35.80394], [51.4396673, 35.8037746], [51.4396941, 35.8035703], [51.4397531, 35.8033701], [51.4398041, 35.8032023], [51.4398604, 35.8029089], [51.4398607, 35.8028765], [51.4399353, 35.8027028], [51.440067, 35.8024934], [51.4402195, 35.8022558], [51.4402359, 35.8022302], [51.4403977, 35.8019289], [51.4404414, 35.8018693], [51.4405939, 35.8016614], [51.4406498, 35.8015852], [51.4406656, 35.801557], [51.4407071, 35.8014829], [51.4407831, 35.801347], [51.4409065, 35.8010381], [51.4409497, 35.8008686], [51.4409955, 35.8006893], [51.4410352, 35.8005334], [51.4411846, 35.8000913], [51.4412237, 35.8000432], [51.4412894, 35.8000125], [51.4413661, 35.7999254], [51.4412911, 35.799853], [51.4412477, 35.7998009], [51.4411668, 35.7997], [51.4408865, 35.7993469], [51.4407196, 35.7991271], [51.4406548, 35.7990297], [51.440594, 35.7989235], [51.4405003, 35.7986967], [51.4404425, 35.7985427], [51.4404277, 35.7985012], [51.4402534, 35.7980415], [51.4402392, 35.7979846], [51.4402057, 35.7977573], [51.4401304, 35.7970211], [51.4399902, 35.7965182], [51.4398574, 35.7961024], [51.4398027, 35.7959056], [51.4396917, 35.79551], [51.4396292, 35.7953377], [51.439591, 35.7952627], [51.4395321, 35.7951931], [51.439407, 35.7950818], [51.439209, 35.7948963], [51.4391186, 35.7948105], [51.4390485, 35.7947208], [51.4388125, 35.794538]]}, "properties": {"color": "#800080", "weight": 10.0, "opacity": 1}}]};
+
+if (gjData.features.length != 0) {
+  var gj = L.geoJson(gjData, {
+    style: function (feature) {
+      return feature.properties;
+    },
+    pointToLayer: function (feature, latlng) {
+      var icon = L.divIcon({'html': feature.properties.html, 
+        iconAnchor: [feature.properties.anchor_x, 
+                     feature.properties.anchor_y], 
+          className: 'empty'});  // What can I do about empty?
+      return L.marker(latlng, {icon: icon});
+    }
+  });
+  gj.addTo(map);
+  
+  map.fitBounds(gj.getBounds());
+} else {
+  map.setView([0, 0], 1);
+}
+</script>
+</body>
