@@ -131,11 +131,14 @@ if __name__ == "__main__":
   # Test suite - do a little bit of easy routing in birmingham
   data = LoadOsm("car")
 
-  node1 = data.findNode(35.805131, 51.439972)
-  node2 = data.findNode(35.712817, 51.374682)
+  node1 = (35.80521454717427, 51.43798828125)
+  node2 = (35.79745295182983, 51.43717288970948)
 
-  print(node1)
-  print(node2)
+  node1 = data.findNode(*node1)
+  node2 = data.findNode(*node2)
+
+  print(data.rnodes[node1])
+  print(data.rnodes[node2])
 
   router = Router(data)
   result, route = router.doRoute(node1, node2)
@@ -150,11 +153,10 @@ if __name__ == "__main__":
       node = data.rnodes[i]
       lats.append(node[0])
       lons.append(node[1])
-    fig = plt.figure()    #This is missing in your code.
-    plt.plot(lons, lats, color="purple", linewidth=10) # Draw blue line
-
-    #And after this call the funtion:
-
+    fig = plt.figure()
+    plt.plot(lons, lats, color="purple", linewidth=10)
+    plt.plot([data.rnodes[node1][1]], [data.rnodes[node1][0]], "rs")
+    plt.plot([data.rnodes[node2][1]], [data.rnodes[node2][0]], "rs")
     mplleaflet.show(fig=fig)
 
   else:
