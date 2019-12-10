@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+# <<<<<<< HEAD
 #!/usr/bin/python
 #----------------------------------------------------------------
 # Routing for OSM data
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
   else:
     print("Failed (%s)" % result)
-=======
+
 #!/usr/bin/python
 #----------------------------------------------------------------
 # Routing for OSM data
@@ -317,22 +317,21 @@ if __name__ == "__main__":
       # drawing on map
       latitude_list.append(node[0])
       longitude_list.append(node[1])
-        
-    gmap3 = gmplot.GoogleMapPlotter(35.8027021,51.4408202,14.71) 
-      
-    # scatter method of map object  
-    # scatter points on the google map 
-    # gmap3.scatter( latitude_list, longitude_list, '#db0000', 
-    #                               size = 10, marker = False ) 
-      
-    # Plot method Draw a line in 
-    # between given coordinates 
-    gmap3.plot(latitude_list, longitude_list,  
-               'red', edge_width = 10) 
-      
-    gmap3.draw("gmap.html") 
+
+    gmap3 = gmplot.GoogleMapPlotter(35.8027021,51.4408202,14.71)
+
+    # scatter method of map object
+    # scatter points on the google map
+    # gmap3.scatter( latitude_list, longitude_list, '#db0000',
+    #                               size = 10, marker = False )
+
+    # Plot method Draw a line in
+    # between given coordinates
+    gmap3.plot(latitude_list, longitude_list,
+               'red', edge_width = 10)
+
+    gmap3.draw("gmap.html")
 
 
   else:
     print("Failed (%s)" % result)
->>>>>>> 65d12d3e6c85581812e7983e79a7f3a141a79edb

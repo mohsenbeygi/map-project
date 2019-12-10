@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block style %}
+    .leaflet-container .leaflet-tile {
+       margin: 0;
+    }
+    .leaflet-control-zoom-in {
+        text-decoration: none !important;
+    }
+    .leaflet-control-zoom-out {
+        text-decoration: none !important;
+    }
+    #map{{ mapid }} {
+      height:{{ height }}px;
+    }
+{% endblock %}
+{% block script_main %}
+func{{ mapid }} = function() {
+{{ super() }}
+}
+setTimeout(function() { func{{ mapid }}() }, 2000);
+{% endblock %}

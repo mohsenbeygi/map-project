@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+# <<<<<<< HEAD
 #!/etc/env python
 #----------------------------------------------------------------
 # load OSM data file into memory
@@ -289,7 +289,7 @@ if __name__ == "__main__":
   data.report()
 
   print("Searching for node: found " + str(data.findNode(52.55291,-1.81824)))
-=======
+
 #!/etc/env python
 #----------------------------------------------------------------
 # load OSM data file into memory
@@ -580,4 +580,3 @@ if __name__ == "__main__":
   data.report()
 
   print("Searching for node: found " + str(data.findNode(52.55291,-1.81824)))
->>>>>>> 65d12d3e6c85581812e7983e79a7f3a141a79edb

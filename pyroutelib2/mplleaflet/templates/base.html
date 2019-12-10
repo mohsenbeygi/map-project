@@ -1,0 +1,44 @@
+<head>
+  {% for link in links %}
+    {{link.render(embedded=embed_links)}}
+  {% endfor %}
+  <style>
+    {% block style %}
+    #map{{ mapid }} {
+      height:100%;
+    }
+    {% endblock %}
+  </style> 
+</head>
+<body>
+  <div id="map{{ mapid }}"></div>
+<script text="text/javascript">
+{% block script_main %}
+var map = L.map('map{{ mapid }}');
+L.tileLayer(
+  "{{ tile_url }}",
+  {maxZoom:19, attribution: '{{ attribution }}'}).addTo(map);
+var gjData = {{ geojson }};
+
+if (gjData.features.length != 0) {
+  var gj = L.geoJson(gjData, {
+    style: function (feature) {
+      return feature.properties;
+    },
+    pointToLayer: function (feature, latlng) {
+      var icon = L.divIcon({'html': feature.properties.html, 
+        iconAnchor: [feature.properties.anchor_x, 
+                     feature.properties.anchor_y], 
+          className: 'empty'});  // What can I do about empty?
+      return L.marker(latlng, {icon: icon});
+    }
+  });
+  gj.addTo(map);
+  
+  map.fitBounds(gj.getBounds());
+} else {
+  map.setView([0, 0], 1);
+}
+{% endblock %}
+</script>
+</body>
