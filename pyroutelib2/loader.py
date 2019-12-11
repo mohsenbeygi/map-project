@@ -1,28 +1,3 @@
-# <<<<<<< HEAD
-#!/etc/env python
-#----------------------------------------------------------------
-# load OSM data file into memory
-#
-#------------------------------------------------------
-# Copyright 2007, Oliver White
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#------------------------------------------------------
-# Changelog:
-#  2007-11-04  OJW  Modified from pyroute.py
-#  2007-11-05  OJW  Multiple forms of transport
-#------------------------------------------------------
 import os
 import re
 import sys
@@ -47,20 +22,7 @@ class LoadOsm(object):
     self.api = osmapi.OsmApi(api="api.openstreetmap.org")
 
   def getArea(self, lat, lon):
-    """Download data in the vicinity of a lat/long.
-    Return filename to existing or newly downloaded .osm file."""
-
-    z = tiledata.DownloadLevel()
-    (x,y) = tilenames.tileXY(lat, lon, z)
-
-    tileID = '%d,%d'%(x,y)
-    if(self.tiles.get(tileID,False)):
-      #print "Already got %s" % tileID
-      return
-    self.tiles[tileID] = True
-
     filename = 'map.osm'
-    #print "Loading %d,%d at z%d from %s" % (x,y,z,filename)
     return(self.loadOsm(filename))
 
   def _ParseDate(self, DateString):
@@ -119,10 +81,10 @@ class LoadOsm(object):
 
   def parseOsmFile(self, filename):
     result = []
-    with open(filename, "r", encoding="utf-8") as f:
-      for event, elem in etree.iterparse(f): # events=['end']
-        print(elem)
+    with open(filename, "r", encoding="utf-8") as file:
+      for event, elem in etree.iterparse(file): # events=['end']
         if elem.tag == "node":
+
           data = self.getElementAttributes(elem)
           data["tag"] = self.getElementTags(elem)
           result.append({
@@ -157,7 +119,7 @@ class LoadOsm(object):
 
   def loadOsm(self, filename):
     if(not os.path.exists(filename)):
-      print("No such data file %s" % filename)
+      print("No suc hdata file %s" % filename)
       return(False)
 
     nodes, ways = {}, {}
@@ -195,27 +157,18 @@ class LoadOsm(object):
 
     # Calculate what vehicles can use this route
     # TODO: just use getWeight != 0
-    access = {}
-    access['cycle'] = highway in ('primary','secondary','tertiary','unclassified','minor','cycleway','residential', 'track','service')
-    access['car'] = highway in ('motorway','trunk','primary','secondary','tertiary','unclassified','minor','residential', 'service')
-    access['train'] = railway in('rail','light_rail','subway')
-    access['foot'] = access['cycle'] or highway in('footway','steps')
-    access['horse'] = highway in ('track','unclassified','bridleway')
+    access = highway in ('motorway','trunk','primary','secondary','tertiary','unclassified','minor','residential', 'service')
 
     # Store routing information
     last = [None,None,None]
-
-    if(wayID == 41 and 0):
-      print(nodes)
-      sys.exit()
     for node in nodes:
       (node_id,x,y) = node
       if last[0]:
-        if(access[self.transport]):
-          weight = self.weights.get(self.transport, railway or highway)
+        if(access):
+          weight = self.weights.get(railway or highway)
           self.addLink(last[0], node_id, weight)
           self.makeNodeRouteable(last)
-          if reversible or self.transport == 'foot':
+          if reversible:
             self.addLink(node_id, last[0], weight)
             self.makeNodeRouteable(node)
       last = node

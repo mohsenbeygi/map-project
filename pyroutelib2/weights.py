@@ -2,22 +2,19 @@ class RoutingWeights:
   def __init__(self):
     self.Weightings = {
       'motorway': {'car':10},
-      'trunk':    {'car':10, 'cycle':0.05},
-      'primary':  {'cycle': 0.3, 'car':2, 'foot':1, 'horse':0.1},
-      'secondary': {'cycle': 1, 'car':1.5, 'foot':1, 'horse':0.2},
-      'tertiary': {'cycle': 1, 'car':1, 'foot':1, 'horse':0.3},
-      'unclassified': {'cycle': 1, 'car':1, 'foot':1, 'horse':1},
-      'minor': {'cycle': 1, 'car':1, 'foot':1, 'horse':1},
-      'cycleway': {'cycle': 3, 'foot':0.2},
-      'residential': {'cycle': 3, 'car':0.7, 'foot':1, 'horse':1},
-      'track': {'cycle': 1, 'car':1, 'foot':1, 'horse':1, 'mtb':3},
-      'service': {'cycle': 1, 'car':1, 'foot':1, 'horse':1},
-      'bridleway': {'cycle': 0.8, 'foot':1, 'horse':10, 'mtb':3},
-      'footway': {'cycle': 0.2, 'foot':1},
-      'steps': {'foot':1, 'cycle':0.3},
-      'rail':{'train':1},
-      'light_rail':{'train':1},
-      'subway':{'train':1}
+      'trunk':    {'car':10},
+      'primary':  {'car':2, 'foot':1},
+      'secondary': {'car':1.5, 'foot':1},
+      'tertiary': {'car':1, 'foot':1},
+      'unclassified': {'car':1, 'foot':1},
+      'minor': {'car':1, 'foot':1},
+      'cycleway': {'foot':0.2},
+      'residential': {'car':0.7, 'foot':1},
+      'track': {'car':1, 'foot':1},
+      'service': {'car':1, 'foot':1},
+      'bridleway': {'foot':1},
+      'footway': {'foot':1},
+      'steps': {'foot':1},
       }
 
   def get(self, transport, wayType):
