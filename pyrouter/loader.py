@@ -4,59 +4,31 @@ import xml.etree.ElementTree as etree
 from datetime import datetime
 import weights
 
-class LoadOsm(object):
-    """Parse an OSM file looking for routing information, and do routing with it"""
+class Loader(object):
+    """Parse an OSM file looking for routing information"""
     def __init__(self, transport):
         """Initialise an OSM-file parser"""
         self.routing = {}
         self.rnodes = {}
         self.transport = transport
         self.weights = weights.RoutingWeights()
+        self.car_access = ('motorway','trunk',
+                            'primary', 'secondary',
+                            'tertiary',
+                            'unclassified', 'minor',
+                            'residential', 'service')
         filename = 'map.osm'
         self.loadOsm(filename)
 
-    def _ParseDate(self, DateString):
-        result = DateString
-        try:
-            result = datetime.strptime(DateString, "%Y-%m-%d %H:%M:%S UTC")
-        except:
-            try:
-                result = datetime.strptime(DateString, "%Y-%m-%dT%H:%M:%SZ")
-            except:
-                pass
-            return result
-
-    def getElementAttributes(self, element):    # noqa
+    def getElementAttributes(self, element):
             result = {}
             for k, v in element.attrib.items():
-                if k == "uid":
-                        v = int(v)
-                elif k == "changeset":
-                        v = int(v)
-                elif k == "version":
-                        v = int(v)
-                elif k == "id":
+                if k == "id":
                         v = int(v)
                 elif k == "lat":
                         v = float(v)
                 elif k == "lon":
                         v = float(v)
-                elif k == "open":
-                        v = (v == "true")
-                elif k == "visible":
-                        v = (v == "true")
-                elif k == "ref":
-                        v = int(v)
-                elif k == "comments_count":
-                        v = int(v)
-                elif k == "timestamp":
-                        v = self._ParseDate(v)
-                elif k == "created_at":
-                        v = self._ParseDate(v)
-                elif k == "closed_at":
-                        v = self._ParseDate(v)
-                elif k == "date":
-                        v = self._ParseDate(v)
                 result[k] = v
             return result
 
@@ -72,7 +44,7 @@ class LoadOsm(object):
     def parseOsmFile(self, filename):
         result = []
         with open(filename, "r", encoding="utf-8") as f:
-            for event, elem in etree.iterparse(f): # events=['end']
+            for event, elem in etree.iterparse(f):
                 if elem.tag == "node":
                     data = self.getElementAttributes(elem)
                     data["tag"] = self.getElementTags(elem)
@@ -86,23 +58,12 @@ class LoadOsm(object):
                     data["nd"] = []
                     for child in elem:
                         if child.tag == "nd":
-                            data["nd"].append(int(child.attrib["ref"]))
+                            data["nd"].append(
+                                int(child.attrib["ref"]))
                     result.append({
                         "type": "way",
                         "data": data
                     })
-                elif elem.tag == "relation":
-                    data = self.getElementAttributes(elem)
-                    data["tag"] = self.getElementTags(elem)
-                    data["member"] = []
-                    for child in elem:
-                        if child.tag == " member":
-                            data["member"].append(self.getElementAttributes(child))
-                    result.append({
-                        "type": "relation",
-                        "data": data
-                    })
-                    elem.clear()
         return result
 
 
@@ -125,7 +86,8 @@ class LoadOsm(object):
                 else:
                     continue
             except KeyError:
-                # Don't care about bad data (no type/data key)
+                # Don't care about bad
+                # data (no type/data key)
                 continue
         #end for x in data
         for way_id, way_data in ways.items():
@@ -133,24 +95,23 @@ class LoadOsm(object):
             for nd in way_data['nd']:
                 if nd not in nodes:
                     continue
-                way_nodes.append([nodes[nd]['id'], nodes[nd]['lat'], nodes[nd]['lon']])
-            self.storeWay(way_id, way_data['tag'], way_nodes)
+                way_nodes.append([nodes[nd]['id'],
+                                 nodes[nd]['lat'],
+                                 nodes[nd]['lon']])
+            self.storeWay(way_id,
+                          way_data['tag'], way_nodes)
 
 
     def storeWay(self, wayID, tags, nodes):
         highway = self.equivalent(tags.get('highway', ''))
-        railway = self.equivalent(tags.get('railway', ''))
         oneway = tags.get('oneway', '')
         reversible = not oneway in('yes','true','1')
 
         # Calculate what vehicles can use this route
         # TODO: just use getWeight != 0
+
         access = {}
-        access['cycle'] = highway in ('primary','secondary','tertiary','unclassified','minor','cycleway','residential', 'track','service')
-        access['car'] = highway in ('motorway','trunk','primary','secondary','tertiary','unclassified','minor','residential', 'service')
-        access['train'] = railway in('rail','light_rail','subway')
-        access['foot'] = access['cycle'] or highway in('footway','steps')
-        access['horse'] = highway in ('track','unclassified','bridleway')
+        access['car'] = highway in self.car_access
 
         # Store routing information
         last = [None,None,None]
@@ -159,11 +120,12 @@ class LoadOsm(object):
             (node_id,x,y) = node
             if last[0]:
                 if(access[self.transport]):
-                    weight = self.weights.get(self.transport, railway or highway)
+                    weight = self.weights.get(highway)
                     self.addLink(last[0], node_id, weight)
                     self.makeNodeRouteable(last)
-                    if reversible or self.transport == 'foot':
-                        self.addLink(node_id, last[0], weight)
+                    if reversible:
+                        self.addLink(node_id,
+                                     last[0], weight)
                         self.makeNodeRouteable(node)
             last = node
 
@@ -180,7 +142,8 @@ class LoadOsm(object):
             self.routing[fr] = {to: weight}
 
     def equivalent(self,tag):
-        """Simplifies a bunch of tags to nearly-equivalent ones"""
+        """Simplifies a bunch of tags to
+         nearly-equivalent ones"""
         equivalent = { \
             "primary_link":"primary",
             "trunk":"primary",
@@ -207,7 +170,8 @@ class LoadOsm(object):
             return(tag)
 
     def findNode(self,lat,lon):
-        """Find the nearest node that can be the start of a route"""
+        """Find the nearest node that
+        can be the start of a route"""
         # self.getArea(lat,lon)
         maxDist = 1E+20
         nodeFound = None
@@ -223,6 +187,8 @@ class LoadOsm(object):
         # print("found at %s"%str(posFound))
         return(nodeFound)
 
-# Parse the supplied OSM file
+
+# Parse an OSM file
 if __name__ == "__main__":
-    data = LoadOsm("car")
+    data = Loader("car")
+    print('loading done')
