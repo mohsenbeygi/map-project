@@ -1,5 +1,5 @@
-from loader import Loader
-from dijkstra import *
+from load.loader import Loader
+from path.dijkstra import *
 import mplleaflet
 import matplotlib.pyplot as plt
 
@@ -11,16 +11,11 @@ inf = float('inf')
 class Router:
     def __init__(self, transport):
         self.transport = transport
-        self.data = Loader("car")
-
-    def get_costs(self, start):
-        costs = {}
-        for node in self.data.routing:
-            if node == start:
-                costs[node] = 0
-            else:
-                costs[node] = inf
-        return costs
+        self.data = Loader("car", read=True)
+        self.data.read("./maps/map_graph.json")
+        # self.data.get_distances(des_pos)
+        print('reading done !')
+        # print(self.data.distances)
 
 
     def display_path(self, path, node1, node2):
@@ -51,9 +46,12 @@ class Router:
         # print(data.rnodes[node2])
 
         # create costs data structure
-        costs = self.get_costs(node1)
+        # costs = self.get_costs(node1)
         # find path from node1 to all nodes
-        parents = dijkstra(costs, self.data.routing)
+        parents = dijkstra(self.data.routing,
+                           node1,
+                           sink = node2)
+                           # self.data.distances)
         # get path from node1 to node2
         # print(parents[node1])
         path = get_path(parents, node1, node2)[::-1]
@@ -67,13 +65,17 @@ class Router:
 
 if __name__ == '__main__':
 
-    # create router object with specific transport type
-    router = Router("car")
-
     # enter latitude and longitude for
     # the start and destination positions
-    node1 = (35.80521454717427, 51.43798828125)
-    node2 = (35.79745295182983, 51.43717288970948)
+    node1 = (35.803478935319305, 51.439270377159126)
+    node2 = (35.78560464806688, 51.44317030906678)
+    # node1 = tuple(map(float,
+    #     input("Beginning:  ").split(',')))
+    # node2 = tuple(map(float,
+    #     input("Destination:  ").split(',')))
+
+    # create router object with specific transport type
+    router = Router("car")
 
     # find path and display path on map
     router.find_path(node1, node2)
