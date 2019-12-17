@@ -19,5 +19,3 @@ plt.plot(lons, lats, "rs")
 print('here as well')
 
 mplleaflet.show(fig=fig)
-
-print("what !")

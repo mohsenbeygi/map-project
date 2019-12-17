@@ -42,7 +42,9 @@ def dijkstra(costs, g, des, distances):
 def get_path(parents, beg, des):
     path = [des]
     last = des
+    print('last', last)
     while last != beg:
+        print(last)
         last = parents[last]
         path.append(last)
     return path

@@ -5,6 +5,10 @@ from datetime import datetime
 from load.weights import RoutingWeights
 import json
 import math
+# import sys
+# sys.path.insert(0,'.')
+import sys
+print(sys.path)
 
 class Loader(object):
     """Parse an OSM file looking
@@ -223,7 +227,13 @@ class Loader(object):
 
         self.write_data = {}
         for node in self.routing:
-            self.write_data[node] = self.routing[node]
+            neighbours = {}
+            for neighbour in self.routing[node]:
+                if neighbour in self.routing:
+                    neighbours[neighbour] = \
+                        self.routing[node][neighbour]
+
+            self.write_data[node] = neighbours
             self.write_data[node]['lat'] = \
                 self.rnodes[node][0]
             self.write_data[node]['lon'] = \
@@ -254,7 +264,7 @@ class Loader(object):
         # print('reading done !')
 
     def get_distances(self, des_pos):
-
+        self.distances = {}
         # find distance of every node to destiantion
         des = self.findNode(*des_pos)
         des_pos = self.rnodes[des]
@@ -262,6 +272,9 @@ class Loader(object):
             dist = self.get_dis(des_pos,
                                 self.rnodes[node])
             self.distances[node] = dist
+            if node == '2170382002':
+                print(node, dist, '  !!!')
+            # print('here')
 
 
     def get_dis(self, des_pos, node_pos):
@@ -289,9 +302,9 @@ class Loader(object):
 # Parse an OSM file
 if __name__ == "__main__":
 
-    filename = 'tehran.osm'
+    filename = 'map.osm'
 
     data = Loader("car", filename)
     print('loading osm file done !')
-    data.write("map_graph.json")
+    data.write("map_graph1.json")
     print("done !")
