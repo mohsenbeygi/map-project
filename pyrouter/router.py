@@ -1,6 +1,6 @@
 from load.map import Map
 from path.dijkstra2 import *
-import library.mplleaflet as mplleaflet
+import mplleaflet
 import matplotlib.pyplot as plt
 
 
@@ -51,8 +51,8 @@ class Router:
         # find the closests node to the
         # given latitude and longitude
         self.map.get_distances(node2)
-        node1 = self.map.findNode(*node1)
-        node2 = self.map.findNode(*node2)
+        node1 = self.map.find_node(*node1)
+        node2 = self.map.find_node(*node2)
 
         # print(self.map.node_cords[node1])
         # print(self.map.node_cords[node2])

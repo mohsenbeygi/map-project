@@ -1,8 +1,5 @@
 import os
-import re
 import xml.etree.ElementTree as etree
-from datetime import datetime
-from load.weights import RoutingWeights
 import json
 import math
 # import sys
@@ -51,7 +48,6 @@ graph = {
 
 inf = float('inf')
 
-
 class Map:
     def __init__(self, transport,
         filename='./maps/map.osm', read=False):
@@ -69,19 +65,42 @@ class Map:
         # transprot type
         self.transport = transport
 
-        # weights of different roads
-        self.weights = RoutingWeights()
-
         # road types a car can travel in
         self.car_access = ('motorway','trunk',
                             'primary', 'secondary',
                             'tertiary',
                             'unclassified', 'minor',
                             'residential', 'service')
+
+        # weights for different types
+        # of roads (considering
+        # thickness, road quality,
+        # manuever, maneuverability, etc)
+        self.weights = {
+            'motorway': 10,
+            'trunk': 10,
+            'primary':  2,
+            'secondary': 1.5,
+            'tertiary': 1,
+            'unclassified': 1,
+            'minor': 1,
+            'residential': 0.7,
+            'track': 1,
+            'service': 1,
+        }
+
         # data filename
         self.filename = filename
         if not read:
             self.get_graph(self.filename)
+
+    def get_weight(self, wayType):
+        try:
+            return self.weights[wayType]
+        except KeyError:
+            # if no weighting is defined,
+            # then assume it can't be routed
+            return 0
 
     def get_element_attributes(self, element):
         result = {}
@@ -185,11 +204,10 @@ class Map:
                          way_nodes)
 
         '''
-        remove nodes that other nodes
-        are connected to but we don't have
-        any data from them (we don't know
-        what nodes there connected to)
-        because they cause errors in routing
+        remove nodes, which are neighbours
+        to other nodes, but no data exists
+        about them. (neighbour weights and data)
+        to prevent errors in routing
         '''
 
         self.new_graph = {}
@@ -197,6 +215,8 @@ class Map:
         for node in self.graph:
             neighbours = {}
             for neighbour in self.graph[node]:
+
+                # check data about neighbour exists
                 if neighbour in self.graph:
                     neighbours[neighbour] = \
                         self.graph[node][neighbour]
@@ -230,30 +250,29 @@ class Map:
                 if last[0]:
 
                     # get weight of the road
-                    weight = self.weights.get(highway)
+                    weight = self.get_weight(highway)
 
                     # create connection in graph
-                    self.addLink(last[0],
+                    self.add_link(last[0],
                                  node_id, weight)
 
                     # add node cords (mostly
                     # for displaying in routing)
-                    self.add_node_cords(last)
+                    self.node_cords[last[0]] = \
+                        [last[1], last[2]]
 
                     # add the opposite direction
                     # if road isn't oneway
                     if twoway:
-                        self.addLink(node_id,
+                        self.add_link(node_id,
                                      last[0],
                                      weight)
-                        self.add_node_cords(node)
+                        self.node_cords[node[0]] = \
+                        [node[1], node[2]]
 
                 last = node
 
-    def add_node_cords(self, node):
-        self.node_cords[node[0]] = [node[1], node[2]]
-
-    def addLink(self, fr, to, weight=1):
+    def add_link(self, fr, to, weight=1):
         """Add a edge to the graph"""
         try:
             if to in list(self.graph[fr].keys()):
@@ -294,7 +313,7 @@ class Map:
         except KeyError:
             return(tag)
 
-    def findNode(self, lat, lon):
+    def find_node(self, lat, lon):
         """
         find the nearest node
         to a latitude and longitude
@@ -348,25 +367,17 @@ class Map:
                 filename = filename.format(index)
                 index += 1
 
-        else:
-            # check if file with given filename exists
-            if not (os.path.exists(filename)):
-                error = "\nNo such file with name: \n"
-                print(error + filename)
-                return
+        # else:
+        #     # check if file with given filename exists
+        #     if not (os.path.exists(filename)):
+        #         error = "\nNo such file with name: \n"
+        #         print(error + filename)
+        #         return
 
-        self.write_data = {}
-        for node in self.graph:
-            neighbours = {}
-            for neighbour in self.graph[node]:
-                neighbours[neighbour] = \
-                    self.graph[node][neighbour]
-
-            self.write_data[node] = neighbours
-            self.write_data[node]['lat'] = \
-                self.node_cords[node][0]
-            self.write_data[node]['lon'] = \
-                self.node_cords[node][1]
+        self.write_data = {
+            "node_cords": self.node_cords,
+            "graph": self.graph
+        }
 
         with open(filename, 'w')as file:
             json.dump(self.write_data, file)
@@ -385,23 +396,8 @@ class Map:
             data = json.load(file)
 
         # create graph
-        self.graph = {}
-        self.node_cords = {}
-
-        for node in data:
-            self.graph[node] = {}
-
-            # get neighbours of each node
-            # (and) weight between them
-            for neighbour in data[node]:
-                if neighbour != 'lat':
-                    if neighbour != 'lon':
-                        self.graph[node][neighbour] = \
-                            data[node][neighbour]
-
-            # save node cordinates
-            self.node_cords[node] = [data[node]['lat'],
-                                     data[node]['lon']]
+        self.graph = data['graph']
+        self.node_cords = data['node_cords']
 
         print('reading done !')
 
@@ -414,17 +410,17 @@ class Map:
         self.distances = {}
 
         # find destination node in graph
-        des = self.findNode(*des_pos)
+        des = self.find_node(*des_pos)
         des_pos = self.node_cords[des]
 
         for node in self.node_cords:
             # find distance in kilometers
-            dist = self.get_distance(des_pos,
+            dist = self.geocode_to_kilometers(des_pos,
                 self.node_cords[node])
 
             self.distances[node] = dist
 
-    def get_distance(self, node1, node2):
+    def geocode_to_kilometers(self, node1, node2):
         # get distance between two
         # nodes in kilometers
 
