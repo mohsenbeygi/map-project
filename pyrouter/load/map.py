@@ -411,6 +411,11 @@ class Map:
 
         # find destination node in graph
         des = self.find_node(*des_pos)
+
+        if des is None:
+            print("\nfinding distances \
+                destination not found!\n")
+
         des_pos = self.node_cords[des]
 
         for node in self.node_cords:

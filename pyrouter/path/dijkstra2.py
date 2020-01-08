@@ -4,7 +4,7 @@ from .fibHeap import FibonacciHeap
 inf = float('inf')
 
 
-def dijkstra(adj_list, source, sink = None):
+def dijkstra(adj_list, source, dest_distances, sink = None):
     # intentionally 1 more than the
     # number of vertices, keep the
     # 0th entry free for convenience
@@ -23,7 +23,8 @@ def dijkstra(adj_list, source, sink = None):
     node_indexes = {}
     for node in adj_list:
         node_indexes[node] = index
-        heap_nodes[index] = heap.insert(float('inf'), node)
+        heap_nodes[index] = heap.insert(float('inf'),
+                                        node)
         # distance, label
         index += 1
 
@@ -42,7 +43,8 @@ def dijkstra(adj_list, source, sink = None):
             cost = adj_list[current][neighbor]
             if not visited[neighbor]:
                 cost_from = distance[current] + cost
-                if cost_from < distance[neighbor]:
+                if cost_from + dest_distances[neighbor] < \
+                    distance[neighbor]:
                     distance[neighbor] = cost_from
                     heap.decrease_key(
                         heap_nodes[node_indexes[neighbor]],

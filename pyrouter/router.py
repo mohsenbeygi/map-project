@@ -2,6 +2,7 @@ from load.map import Map
 from path.dijkstra2 import *
 import mplleaflet
 import matplotlib.pyplot as plt
+from read_cords import *
 
 
 # infinity for routing
@@ -13,8 +14,7 @@ class Router:
         self.transport = transport
         # self.map = Map("car")
         self.map = Map("car", read=True)
-        self.map.read("./maps/map_graph1.json")
-        # print(self.map.distances)
+        self.map.read("./maps/map_graph.json")
 
     def display_path(self, path, node1, node2):
         # showing on map with mplleaflet library
@@ -54,6 +54,11 @@ class Router:
         node1 = self.map.find_node(*node1)
         node2 = self.map.find_node(*node2)
 
+        if node1 == node2:
+            raise ValueError("start and \
+                destination are equal !")
+            return
+
         # print(self.map.node_cords[node1])
         # print(self.map.node_cords[node2])
 
@@ -71,7 +76,9 @@ class Router:
         ''' dijkstra2 routing '''
         parents = dijkstra(self.map.graph,
                            node1,
-                           sink=node2)
+                           self.map.distances,
+                           sink=node2
+                           )
 
         # get path from node1 to node2
         path = get_path(parents, node1, node2)[::-1]
@@ -85,19 +92,25 @@ if __name__ == '__main__':
 
     # enter latitude and longitude for
     # the start and destination positions
-    node1 = (35.80367469044131, 51.438760757446296)
-    # node2 = (35.79971568830117, 51.4386534690857)
-    node2 = (35.801312188809185, 51.43841207027436)
+    read_cordinations = True
 
-    '''
-    get start and end from user
-    '''
+    if not read_cordinations:
+        # start node
+        node1 = (35.80367469044131, 51.438760757446296)
+        # destination node
+        node2 = (35.801312188809185, 51.43841207027436)
 
-    # node1 = tuple(map(float,
-    #     input("Beginning:  ").split(',')))
-    # node2 = tuple(map(float,
-    #     input("Destination:  ").split(',')))
+        '''
+        get start and end from user
+        '''
 
+        # node1 = tuple(map(float,
+        #     input("Beginning:  ").split(',')))
+        # node2 = tuple(map(float,
+        #     input("Destination:  ").split(',')))
+
+    else:
+        node1, node2 = get_node_cords("cords.json")
 
     # create router object with specific transport type
     router = Router("car")

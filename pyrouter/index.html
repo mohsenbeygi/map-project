@@ -32,6 +32,9 @@
         const tiles = L.tileLayer(tileUrl, {attribution});
         tiles.addTo(mymap);
         var popup = L.popup();
+        var count = 0;
+        var cords = [];
+        var sdown = false;
 
         function show_pos(e) {
             var coord = e.latlng;
@@ -41,30 +44,45 @@
                 .setLatLng(e.latlng)
                 .setContent(coord.lat + ', ' + coord.lng)
                 .openOn(mymap);
-        }
-
-        /*
-        function readTextFile(file)
-        {
-            var rawFile = new XMLHttpRequest();
-            rawFile.open("GET", file, false);
-            rawFile.onreadystatechange = function ()
-            {
-                if(rawFile.readyState === 4)
-                {
-                    if(rawFile.status === 200 || rawFile.status == 0)
-                    {
-                        var allText = rawFile.responseText;
-                        alert(allText);
-                    }
+            if (sdown){
+                count ++;
+                cords.push(slat);
+                cords.push(slng);
+                if (count == 2){
+                    // Start file download.
+                    download("cords.json", cords.toString() + ',');
+                    count = 0;
+                    cords = [];
                 }
             }
-            rawFile.send(null);
         }
-        */
 
         mymap.on('click', show_pos);
 
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+        window.addEventListener('keydown', onKeyDown, true);
+        window.addEventListener('keyup', onKeyUp, true);
+
+        function onKeyDown(evt) {
+          // key up event as been fired
+          sdown = true;
+        }
+
+        function onKeyUp(evt) {
+          // key up event as been fired
+          sdown = false;
+        }
     </script>
 
 </body>
