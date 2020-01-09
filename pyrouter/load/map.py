@@ -48,9 +48,10 @@ graph = {
 
 inf = float('inf')
 
+
 class Map:
     def __init__(self, transport,
-        filename='./maps/map.osm', read=False):
+                 filename='./maps/map.osm', read=False):
 
         # distance of a node to
         # all other nodes (destination)
@@ -66,27 +67,27 @@ class Map:
         self.transport = transport
 
         # road types a car can travel in
-        self.car_access = ('motorway','trunk',
-                            'primary', 'secondary',
-                            'tertiary',
-                            'unclassified', 'minor',
-                            'residential', 'service')
+        self.car_access = ('motorway', 'trunk',
+                           'primary', 'secondary',
+                           'tertiary',
+                           'unclassified', 'minor',
+                           'residential', 'service')
 
         # weights for different types
         # of roads (considering
         # thickness, road quality,
         # manuever, maneuverability, etc)
         self.weights = {
-            'motorway': 1,
-            'trunk': 1,
-            'primary':  9,
-            'secondary': 9.5,
-            'tertiary': 10,
-            'unclassified': 10,
-            'minor': 10,
-            'residential': 10.3,
-            'track': 10,
-            'service': 10,
+            'motorway': 10,
+            'trunk': 10,
+            'primary':  2,
+            'secondary': 1.5,
+            'tertiary': 1,
+            'unclassified': 1,
+            'minor': 1,
+            'residential': 0.7,
+            'track': 1,
+            'service': 1,
         }
 
         # data filename
@@ -136,7 +137,7 @@ class Map:
         ways = {}
 
         with open(filename, "r",
-            encoding="utf-8") as file:
+                  encoding="utf-8") as file:
 
             for event, elem in etree.iterparse(file):
                 # element is node
@@ -155,7 +156,6 @@ class Map:
                     ways[data['id']] = data
 
         return nodes, ways
-
 
     def get_graph(self, filename):
         '''
@@ -195,8 +195,8 @@ class Map:
                     continue
 
                 way_nodes.append([nodes[nd]['id'],
-                                 nodes[nd]['lat'],
-                                 nodes[nd]['lon']])
+                                  nodes[nd]['lat'],
+                                  nodes[nd]['lon']])
 
             # add way to graph
             self.add_way(way_id,
@@ -235,7 +235,7 @@ class Map:
 
         # road is two way or one way
         oneway = tags.get('oneway', '')
-        twoway = not oneway in ('yes','true','1')
+        twoway = oneway not in ('yes', 'true', '1')
 
         access = {}
         access['car'] = highway in self.car_access
@@ -254,7 +254,7 @@ class Map:
 
                     # create connection in graph
                     self.add_link(last[0],
-                                 node_id, weight)
+                                  node_id, weight)
 
                     # add node cords (mostly
                     # for displaying in routing)
@@ -265,10 +265,10 @@ class Map:
                     # if road isn't oneway
                     if twoway:
                         self.add_link(node_id,
-                                     last[0],
-                                     weight)
+                                      last[0],
+                                      weight)
                         self.node_cords[node[0]] = \
-                        [node[1], node[2]]
+                            [node[1], node[2]]
 
                 last = node
 
@@ -287,24 +287,24 @@ class Map:
         nearly-equivalent ones
         """
         equivalent = {
-            "primary_link":"primary",
-            "trunk":"primary",
-            "trunk_link":"primary",
-            "secondary_link":"secondary",
-            "tertiary":"secondary",
-            "tertiary_link":"secondary",
-            "residential":"unclassified",
-            "minor":"unclassified",
-            "steps":"footway",
-            "driveway":"service",
-            "pedestrian":"footway",
-            "bridleway":"cycleway",
-            "track":"cycleway",
-            "arcade":"footway",
-            "canal":"river",
-            "riverbank":"river",
-            "lake":"river",
-            "light_rail":"railway"
+            "primary_link": "primary",
+            "trunk": "primary",
+            "trunk_link": "primary",
+            "secondary_link": "secondary",
+            "tertiary": "secondary",
+            "tertiary_link": "secondary",
+            "residential": "unclassified",
+            "minor": "unclassified",
+            "steps": "footway",
+            "driveway": "service",
+            "pedestrian": "footway",
+            "bridleway": "cycleway",
+            "track": "cycleway",
+            "arcade": "footway",
+            "canal": "river",
+            "riverbank": "river",
+            "lake": "river",
+            "light_rail": "railway"
         }
 
         try:
@@ -420,12 +420,12 @@ class Map:
 
         for node in self.node_cords:
             # find distance in kilometers
-            dist = self.geocode_to_kilometers(des_pos,
-                self.node_cords[node])
+            dist = self.geocode_to_meter(des_pos,
+                                         self.node_cords[node])
 
             self.distances[node] = dist
 
-    def geocode_to_kilometers(self, node1, node2):
+    def geocode_to_meter(self, node1, node2):
         # get distance between two
         # nodes in kilometers
 
@@ -454,86 +454,14 @@ class Map:
         return distance
 
 
-    def update_conn(self, node1, node2):
-        # 0 = oneway to node
-        # 1 = oneway from node
-        # 2 = two way
-
-        if node1 in self.conns:
-            if node2 in self.conns[node1]:
-                if self.conns[node1][node2][0] == 0:
-                    # make it twoway
-                    self.conns[node1][node2][0] = 2
-                    # add weight
-                    self.conns[node1][node2][1] = \
-                        self.graph[node1][node2]
-
-                    # make neighbour twoway as well
-                    self.conns[node2][node1][0] = 2
-            else:
-                self.conns[node1][node2] = \
-                    [1, self.graph[node1][node2]]
-                if node2 in self.conns:
-                    self.conns[node2][node1] = [0, None]
-
-                else:
-                    self.conns[node2] = {
-                        node1: [0, None]
-                    }
-
-
-        else:
-            self.conns[node1] = {
-                    node2: [1, self.graph[node1][node2]]
-            }
-            if node2 in self.conns:
-                self.conns[node2][node1] = [0, None]
-
-            else:
-                self.conns[node2] = {
-                    node1: [0, None]
-                }
-
-
-    def clean_graph(self):
-        # 0 = oneway to node
-        # 1 = oneway from node
-        # 2 = two way
-
-        # connections
-        self.conns = {}
-        for node in self.graph:
-            for neighbour in self.graph[node]:
-                self.update_conn(node, neighbour)
-
-        count = 0
-        for node in self.conns:
-            if len(self.conns[node]) == 2:
-                node1, node2 = self.conns[node].keys()
-                count += 1
-        # print(self.conns, count)
-
-
-
 ''' Parse an OSM file '''
 if __name__ == "__main__":
 
-    # filename = 'map.osm'
+    filename = 'map.osm'
 
-    # data = Map("car", filename)
-    # print('loading osm file done !')
+    data = Map("car", filename)
+    print('loading osm file done !')
 
-    # # write into json file for easy reading
-    # data.write("map_graph1.json")
-    # print("done !")
-
-    filename = 'map_graph.json'
-
-    data = Map("car", filename, read=True)
-
-    # read into json file for easy reading
-    data.read("map_graph.json")
-    # start node count tehran  481243 could clean 267986
-    print("node count: ", len(data.graph))
-    data.clean_graph()
-    # print("done !")
+    # wirte into json file for easy reading
+    data.write("map_graph1.json")
+    print("done !")

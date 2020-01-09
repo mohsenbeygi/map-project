@@ -1,31 +1,17 @@
-import json
 import os
-import sys
-sys.path.insert(0, '~')
 
 
 def get_download_path():
     """
     returns the default downloads
-    path for linux or windows
+    path for any os (linux or windows or mac)
     """
-
     if os.name == 'nt':
-        import winreg
-
-        with winreg.OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
-            Downloads = winreg.QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
-
-        print(Downloads)
-        return Downloads
+        return os.path.join(os.path.expanduser('~'),
+                            'Downloads')
     else:
         return os.path.join(os.path.expanduser('~'),
                             'downloads')
-
-    # download_folder = os.path.expanduser("~")+"/Downloads/"
-    # if not os.path.exists(download_folder):
-    #     download_folder = os.path.join(os.path.expanduser("~"), "download")
-    # return download_folder
 
 
 def get_cords(filename):
@@ -108,5 +94,5 @@ def get_node_cords(filename):
 
 
 if __name__ == "__main__":
-    filename = "cords.json"
+    filename = "cords.txt"
     print(get_cords(filename))

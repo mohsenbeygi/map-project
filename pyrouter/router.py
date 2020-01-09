@@ -71,8 +71,6 @@ class Router:
         #                    node2,
         #                    self.map.distances)
 
-
-
         ''' dijkstra2 routing '''
         parents = dijkstra(self.map.graph,
                            node1,
@@ -110,12 +108,10 @@ if __name__ == '__main__':
         #     input("Destination:  ").split(',')))
 
     else:
-        node1, node2 = get_node_cords("cords.json")
+        node1, node2 = get_node_cords("cords.txt")
 
     # create router object with specific transport type
     router = Router("car")
 
     # find path and display path on map
     router.find_path(node1, node2)
-
-
