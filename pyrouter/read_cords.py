@@ -9,26 +9,23 @@ def get_download_path():
     returns the default downloads
     path for linux or windows
     """
-    # sub_key = r'SOFTWARE\Microsoft\Windows \
-    #     \CurrentVersion\Explorer\Shell Folders'
-    # if os.name == 'nt':
-    #     import winreg
-    #
-    #     downloads_guid = \
-    #         '{374DE290-123F-4565-9164-39C4925E467B}'
-    #     with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-    #                         sub_key) as key:
-    #         location = winreg.QueryValueEx(key,
-    #                                        downloads_guid)[0]
-    #     return location
-    # else:
-    #     return os.path.join(os.path.expanduser('~'),
-    #                         'downloads')
 
-    download_folder = os.path.expanduser("~")+"/Downloads/"
-    if not os.path.exists(download_folder):
-        download_folder = os.path.join(os.path.expanduser("~"), "download")
-    return download_folder
+    if os.name == 'nt':
+        import winreg
+
+        with winreg.OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
+            Downloads = winreg.QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
+
+        print(Downloads)
+        return Downloads
+    else:
+        return os.path.join(os.path.expanduser('~'),
+                            'downloads')
+
+    # download_folder = os.path.expanduser("~")+"/Downloads/"
+    # if not os.path.exists(download_folder):
+    #     download_folder = os.path.join(os.path.expanduser("~"), "download")
+    # return download_folder
 
 
 def get_cords(filename):
