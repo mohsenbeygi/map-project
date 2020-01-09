@@ -1,6 +1,3 @@
-#from https://github.com/danielborowski/fibonacci-heap-python
-#forked and modified code here: https://github.com/Agnishom/fibonacci-heap-python/commit/bfce6ff90e5d363b3eae157920f05fbb7172854a
-
 class FibonacciHeap:
 
     # internal node class
