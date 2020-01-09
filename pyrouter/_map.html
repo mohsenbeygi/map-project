@@ -2,19 +2,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
   <style>
-    #mapcf8928b6f4024bf3a9ec942f324347d9 {
+    #map2b043871ec904fe6a24b9e957e1bc354 {
       height:100%;
     }
   </style> 
 </head>
 <body>
-  <div id="mapcf8928b6f4024bf3a9ec942f324347d9"></div>
+  <div id="map2b043871ec904fe6a24b9e957e1bc354"></div>
 <script text="text/javascript">
-var map = L.map('mapcf8928b6f4024bf3a9ec942f324347d9');
+var map = L.map('map2b043871ec904fe6a24b9e957e1bc354');
 L.tileLayer(
   "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {maxZoom:19, attribution: '<a href="https://github.com/jwass/mplleaflet">mplleaflet</a> | Map data (c) <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'}).addTo(map);
-var gjData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "LineString", "coordinates": [[51.4391563, 35.8034392], [51.4394616, 35.8036396], [51.4396052, 35.8037338], [51.4396673, 35.8037746], [51.4396941, 35.8035703], [51.4397531, 35.8033701], [51.4398041, 35.8032023], [51.4398604, 35.8029089], [51.4398607, 35.8028765], [51.4399353, 35.8027028], [51.4397364, 35.8022751], [51.4392532, 35.801987], [51.4393277, 35.8018173], [51.4394318, 35.8015804], [51.4395227, 35.8013735], [51.4383838, 35.8015578]]}, "properties": {"color": "#800080", "weight": 10.0, "opacity": 1}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [51.4391563, 35.8034392]}, "properties": {"html": "<svg width=\"8px\" height=\"8px\" viewBox=\"-4.0 -4.0 8.0 8.0\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">  <path d=\"M -3.0 -3.0 L 3.0 -3.0 L 3.0 3.0 L -3.0 3.0 Z\" stroke=\"#FF0000\" stroke-width=\"1.0\" stroke-opacity=\"1\" fill=\"#FF0000\" fill-opacity=\"1\" /></svg>", "anchor_x": 4.0, "anchor_y": 4.0}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [51.4383838, 35.8015578]}, "properties": {"html": "<svg width=\"8px\" height=\"8px\" viewBox=\"-4.0 -4.0 8.0 8.0\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">  <path d=\"M -3.0 -3.0 L 3.0 -3.0 L 3.0 3.0 L -3.0 3.0 Z\" stroke=\"#FF0000\" stroke-width=\"1.0\" stroke-opacity=\"1\" fill=\"#FF0000\" fill-opacity=\"1\" /></svg>", "anchor_x": 4.0, "anchor_y": 4.0}}]};
+var gjData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "LineString", "coordinates": [[51.3744742, 35.7149502], [51.3743054, 35.7143897], [51.3748051, 35.7142984], [51.3749275, 35.714276], [51.3750538, 35.7142119], [51.3752182, 35.7140978], [51.3775561, 35.7140336], [51.377606, 35.7134148], [51.3745246, 35.7134757]]}, "properties": {"color": "#800080", "weight": 10.0, "opacity": 1}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [51.3744742, 35.7149502]}, "properties": {"html": "<svg width=\"8px\" height=\"8px\" viewBox=\"-4.0 -4.0 8.0 8.0\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">  <path d=\"M -3.0 -3.0 L 3.0 -3.0 L 3.0 3.0 L -3.0 3.0 Z\" stroke=\"#FF0000\" stroke-width=\"1.0\" stroke-opacity=\"1\" fill=\"#FF0000\" fill-opacity=\"1\" /></svg>", "anchor_x": 4.0, "anchor_y": 4.0}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [51.3745246, 35.7134757]}, "properties": {"html": "<svg width=\"8px\" height=\"8px\" viewBox=\"-4.0 -4.0 8.0 8.0\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">  <path d=\"M -3.0 -3.0 L 3.0 -3.0 L 3.0 3.0 L -3.0 3.0 Z\" stroke=\"#FF0000\" stroke-width=\"1.0\" stroke-opacity=\"1\" fill=\"#FF0000\" fill-opacity=\"1\" /></svg>", "anchor_x": 4.0, "anchor_y": 4.0}}]};
 
 if (gjData.features.length != 0) {
   var gj = L.geoJson(gjData, {
