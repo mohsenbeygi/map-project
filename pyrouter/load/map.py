@@ -77,16 +77,16 @@ class Map:
         # thickness, road quality,
         # manuever, maneuverability, etc)
         self.weights = {
-            'motorway': 10,
-            'trunk': 10,
-            'primary':  2,
-            'secondary': 1.5,
-            'tertiary': 1,
-            'unclassified': 1,
-            'minor': 1,
-            'residential': 0.7,
-            'track': 1,
-            'service': 1,
+            'motorway': 1,
+            'trunk': 1,
+            'primary':  9,
+            'secondary': 9.5,
+            'tertiary': 10,
+            'unclassified': 10,
+            'minor': 10,
+            'residential': 10.3,
+            'track': 10,
+            'service': 10,
         }
 
         # data filename
@@ -454,14 +454,86 @@ class Map:
         return distance
 
 
+    def update_conn(self, node1, node2):
+        # 0 = oneway to node
+        # 1 = oneway from node
+        # 2 = two way
+
+        if node1 in self.conns:
+            if node2 in self.conns[node1]:
+                if self.conns[node1][node2][0] == 0:
+                    # make it twoway
+                    self.conns[node1][node2][0] = 2
+                    # add weight
+                    self.conns[node1][node2][1] = \
+                        self.graph[node1][node2]
+
+                    # make neighbour twoway as well
+                    self.conns[node2][node1][0] = 2
+            else:
+                self.conns[node1][node2] = \
+                    [1, self.graph[node1][node2]]
+                if node2 in self.conns:
+                    self.conns[node2][node1] = [0, None]
+
+                else:
+                    self.conns[node2] = {
+                        node1: [0, None]
+                    }
+
+
+        else:
+            self.conns[node1] = {
+                    node2: [1, self.graph[node1][node2]]
+            }
+            if node2 in self.conns:
+                self.conns[node2][node1] = [0, None]
+
+            else:
+                self.conns[node2] = {
+                    node1: [0, None]
+                }
+
+
+    def clean_graph(self):
+        # 0 = oneway to node
+        # 1 = oneway from node
+        # 2 = two way
+
+        # connections
+        self.conns = {}
+        for node in self.graph:
+            for neighbour in self.graph[node]:
+                self.update_conn(node, neighbour)
+
+        count = 0
+        for node in self.conns:
+            if len(self.conns[node]) == 2:
+                node1, node2 = self.conns[node].keys()
+                count += 1
+        # print(self.conns, count)
+
+
+
 ''' Parse an OSM file '''
 if __name__ == "__main__":
 
-    filename = 'map.osm'
+    # filename = 'map.osm'
 
-    data = Map("car", filename)
-    print('loading osm file done !')
+    # data = Map("car", filename)
+    # print('loading osm file done !')
 
-    # wirte into json file for easy reading
-    data.write("map_graph1.json")
-    print("done !")
+    # # write into json file for easy reading
+    # data.write("map_graph1.json")
+    # print("done !")
+
+    filename = 'map_graph.json'
+
+    data = Map("car", filename, read=True)
+
+    # read into json file for easy reading
+    data.read("map_graph.json")
+    # start node count tehran  481243 could clean 267986
+    print("node count: ", len(data.graph))
+    data.clean_graph()
+    # print("done !")
