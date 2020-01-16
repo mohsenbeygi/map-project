@@ -22,7 +22,7 @@ def get_cords(filename):
 
     path = os.path.exists(os.path.join(get_download_path(),
                                        filename))
-    print(path)
+
     if not os.path.exists(os.path.join(get_download_path(),
                                        filename)):
         print(filename + " doesn't exist")

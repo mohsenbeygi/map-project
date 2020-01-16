@@ -27,14 +27,14 @@ class Router:
         fig = plt.figure()
         plt.plot(lons, lats, color="purple",
                  linewidth=10)
-        # draw red square for start of path
+        # draw green circle for start of path
         plt.plot([self.map.node_cords[node1][1]],
                  [self.map.node_cords[node1][0]],
-                 "rs")
-        # draw red square for end of path
+                 "go", markersize=12)
+        # draw red circle for end of path
         plt.plot([self.map.node_cords[node2][1]],
                  [self.map.node_cords[node2][0]],
-                 "rs")
+                 "ro", markersize=12)
         mplleaflet.show(fig=fig)
 
     def get_costs(self, start):
@@ -53,26 +53,33 @@ class Router:
         self.map.get_distances(node2)
         node1 = self.map.find_node(*node1)
         node2 = self.map.find_node(*node2)
+        print(node1, node2)
+        # find nodes in graph made for routing
+        node1 = self.map.find_graph_node(str(node1))
+        node2 = self.map.find_graph_node(str(node2))
+        print(node1, node2)
+        print("start and destination nodes found !")
+        print("starting pathfinding ...")
+
 
         if node1 == node2:
             raise ValueError("start and \
                 destination are equal !")
             return
 
-        # print(self.map.node_cords[node1])
-        # print(self.map.node_cords[node2])
+        ''' dijkstra routing (without fibonacci heap)'''
 
-        ''' dijkstra routing '''
         # # create costs data structure
         # costs = self.get_costs(node1)
         # # print(self.map.graph['2170382002'])
         # parents = dijkstra(costs,
-        #                    self.map.graph,
+        #                    self.map.routing_graph,
         #                    node2,
         #                    self.map.distances)
 
-        ''' dijkstra2 routing '''
-        parents = dijkstra(self.map.graph,
+        ''' dijkstra2 routing (with fibonacci heap)'''
+
+        parents = dijkstra(self.map.routing_graph,
                            node1,
                            self.map.distances,
                            sink=node2
@@ -83,7 +90,13 @@ class Router:
         # print('Shortest path from ', node1,
         #       ' to ', node2, ' is: ', path)
 
+        print("pathfinding done !")
+
+        print("displaying path ...")
+
         self.display_path(path, node1, node2)
+
+        print("displaying path done !")
 
 
 if __name__ == '__main__':
@@ -93,13 +106,17 @@ if __name__ == '__main__':
     read_cordinations = True
 
     if not read_cordinations:
+        '''
+        manual entry of information
+        '''
+
         # start node
         node1 = (35.80367469044131, 51.438760757446296)
         # destination node
         node2 = (35.801312188809185, 51.43841207027436)
 
         '''
-        get start and end from user
+        get information from user
         '''
 
         # node1 = tuple(map(float,
@@ -108,7 +125,12 @@ if __name__ == '__main__':
         #     input("Destination:  ").split(',')))
 
     else:
+        '''
+        read information from file
+        '''
+
         node1, node2 = get_node_cords("cords.txt")
+
 
     # create router object with specific transport type
     router = Router("car")

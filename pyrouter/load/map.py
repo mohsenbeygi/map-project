@@ -2,6 +2,8 @@ import os
 import xml.etree.ElementTree as etree
 import json
 import math
+import mplleaflet
+import matplotlib.pyplot as plt
 # import sys
 # sys.path.insert(0,'.')
 
@@ -46,6 +48,8 @@ graph = {
 
 '''
 
+
+# infinity for find_node function
 inf = float('inf')
 
 
@@ -80,14 +84,14 @@ class Map:
         self.weights = {
             'motorway': 10,
             'trunk': 10,
-            'primary':  2,
-            'secondary': 1.5,
-            'tertiary': 1,
-            'unclassified': 1,
-            'minor': 1,
-            'residential': 0.7,
-            'track': 1,
-            'service': 1,
+            'primary':  85,
+            'secondary': 85,
+            'tertiary': 90,
+            'unclassified': 90,
+            'minor': 90,
+            'residential': 95,
+            'track': 90,
+            'service': 90,
         }
 
         # data filename
@@ -95,15 +99,16 @@ class Map:
         if not read:
             self.get_graph(self.filename)
 
-    def get_weight(self, wayType):
+    def get_weight(self, way_type):
         try:
-            return self.weights[wayType]
+            return self.weights[way_type]
         except KeyError:
             # if no weighting is defined,
             # then assume it can't be routed
             return 0
 
     def get_element_attributes(self, element):
+        # xml stuff (lat lon and node name from here)
         result = {}
         for key, value in element.attrib.items():
             if key == "id":
@@ -116,6 +121,7 @@ class Map:
         return result
 
     def get_element_tags(self, element):
+        # xml stuff
         result = {}
         for child in element:
             if child.tag == "tag":
@@ -125,6 +131,7 @@ class Map:
         return result
 
     def get_data(self, elem):
+        # xml stuff
         data = self.get_element_attributes(elem)
         data["tag"] = self.get_element_tags(elem)
         return data
@@ -225,6 +232,23 @@ class Map:
 
         self.graph = self.new_graph
 
+        self.influence_distance()
+
+        # remove nodes not needed
+        self.clean_graph()
+
+        print("creating graph done !")
+        print("loading osm file done !")
+
+    def influence_distance(self):
+        for node in self.graph:
+            for neighbour in self.graph[node]:
+                node1 = self.node_cords[node]
+                node2 = self.node_cords[neighbour]
+                dis = self.geo_to_meter(node1, node2)
+                self.graph[node][neighbour] *= dis
+
+
     def add_way(self, wayID, tags, nodes):
 
         # Calculate what vehicles
@@ -273,7 +297,7 @@ class Map:
                 last = node
 
     def add_link(self, fr, to, weight=1):
-        """Add a edge to the graph"""
+        '''Add a edge to the graph between fr and to'''
         try:
             if to in list(self.graph[fr].keys()):
                 return
@@ -338,28 +362,31 @@ class Map:
                 nearest_node = node
 
         if nearest_node is None:
-            print('No node found !')
+            print('No node found (function find_node, file map.py)')
 
         return nearest_node
 
     def write(self, filename=None):
-        '''
-        create a filename if no filename
-        is given in the format:
 
-        map_graph.json
-        map_graph1.json
-        map_graph2.json
-        map_graph3.json
-                .
-                .
-                .
-
-        choose the first filename which
-        doesn't exist in directory
-        '''
+        print('writing data ...')
 
         if filename is None:
+            '''
+            create a filename if no filename
+            is given in the format:
+
+            map_graph.json
+            map_graph1.json
+            map_graph2.json
+            map_graph3.json
+                    .
+                    .
+                    .
+
+            choose the first filename which
+            doesn't exist in directory
+            '''
+
             filename = "map_graph.json"
             index = 1
             while os.path.exists(filename):
@@ -367,25 +394,22 @@ class Map:
                 filename = filename.format(index)
                 index += 1
 
-        # else:
-        #     # check if file with given filename exists
-        #     if not (os.path.exists(filename)):
-        #         error = "\nNo such file with name: \n"
-        #         print(error + filename)
-        #         return
-
         self.write_data = {
             "node_cords": self.node_cords,
-            "graph": self.graph
+            "graph": self.graph,
+            "deleted": self.deleted,
+            "routing_graph": self.routing_graph,
         }
 
         with open(filename, 'w')as file:
             json.dump(self.write_data, file)
 
-        print('writing done !')
+        print('writing data done !')
 
     def read(self, filename):
         ''' create a graph from data (json file) '''
+
+        print("reading data ...")
 
         # check file such name exists
         if not (os.path.exists(filename)):
@@ -397,9 +421,11 @@ class Map:
 
         # create graph
         self.graph = data['graph']
+        self.routing_graph = data["routing_graph"]
         self.node_cords = data['node_cords']
+        self.deleted = data['deleted']
 
-        print('reading done !')
+        print('reading data done !')
 
     def get_distances(self, des_pos):
         '''
@@ -420,12 +446,12 @@ class Map:
 
         for node in self.node_cords:
             # find distance in kilometers
-            dist = self.geocode_to_meter(des_pos,
-                                         self.node_cords[node])
+            dist = self.geo_to_meter(des_pos,
+                                     self.node_cords[node])
 
             self.distances[node] = dist
 
-    def geocode_to_meter(self, node1, node2):
+    def geo_to_meter(self, node1, node2):
         # get distance between two
         # nodes in kilometers
 
@@ -453,15 +479,224 @@ class Map:
 
         return distance
 
+    def update_conn(self, node1, node2):
+        '''
+        add path:
+        node1  --->  node2      case 1
+
+        (if   node1  <---  node2  exists then
+        it becomes twoway  node1  <-->  node2,     case 2)
+
+        0 = oneway to node
+        1 = oneway from node
+        2 = two way
+        '''
+
+        if node1 in self.conns:
+            # case 2
+            if node2 in self.conns[node1]:
+                if self.conns[node1][node2][0] == 0:
+                    # make it twoway
+                    self.conns[node1][node2][0] = 2
+                    # add weight
+                    self.conns[node1][node2][1] = \
+                        self.graph[node1][node2]
+
+                    # make neighbour twoway as well
+                    self.conns[node2][node1][0] = 2
+            else:
+                # case2
+                self.conns[node1][node2] = \
+                    [1, self.graph[node1][node2]]
+                if node2 in self.conns:
+                    self.conns[node2][node1] = [0, None]
+
+                else:
+                    self.conns[node2] = {
+                        node1: [0, None]
+                    }
+
+
+        else:
+            # handling for first way connecting to node1
+            self.conns[node1] = {
+                    node2: [1, self.graph[node1][node2]]
+            }
+
+            # handling for first way connecting to node2
+            if node2 in self.conns:
+                self.conns[node2][node1] = [0, None]
+
+            else:
+                self.conns[node2] = {
+                    node1: [0, None]
+                }
+
+
+    def clean_graph(self):
+        '''
+        create a graph from the graph made
+        which doesn't have unnecessary
+        nodes of a map, e.g. a map has multiple
+        nodes for a bent road but in graph
+        needed for path finding (routing)
+        those nodes aren't needed.
+        '''
+
+        # 0 = oneway to node
+        # 1 = oneway from node
+        # 2 = two way
+
+        self.deleted = {}
+        self.conns = {}
+        '''
+        in the graph until know, we only know
+        wether a node has a path to other
+        nodes but we don't know if other
+        nodes exist that have oneway paths to
+        the node (i.e. you can't go from the
+        node to the other node but you can come
+        from the other node) so first we extract
+        those data as well.
+        '''
+        for node in self.graph:
+            for neighbour in self.graph[node]:
+                self.update_conn(node, neighbour)
+
+        '''
+        to eliminate nodes not needed for
+        pathfinding (routing) we remove
+        nodes which have conditions such as
+        node A which is shown below
+        (A is only connected to two nodes,
+        not considering direction)
+
+            B --->  A  ---> C      case 1
+                    or
+            B <---  A  <--- C      case 2
+                    or
+            B <-->  A  <--> C      case 3
+
+        (arrows indicate edge direction)
+        '''
+
+        items = list(self.conns)
+        for node in items:
+            if len(self.conns[node]) == 2:
+                # if connected to two nodes
+                node1, node2 = self.conns[node].keys()
+
+                # if the two nodes have a path between them
+                if node2 in self.conns[node1]:
+                    if node1 in self.conns[node2]:
+                        continue
+
+                # case 1
+                if self.conns[node][node1][0] == 0:
+                    if self.conns[node][node2][0] == 1:
+                        # store for graphicall route
+                        # representation
+                        self.deleted[node] = str(node2)
+
+                        weight = self.conns[node1][node][1] + \
+                            self.conns[node][node2][1]
+                        self.conns[node1][node2] = [1, weight]
+                        self.conns[node2][node1] = [0, None]
+                        del self.conns[node1][node]
+                        del self.conns[node2][node]
+                        del self.conns[node]
+                        continue
+
+                # case 2
+                if self.conns[node][node2][0] == 0:
+                    if self.conns[node][node1][0] == 1:
+                        # store for graphicall route
+                        # representation
+                        self.deleted[node] = str(node1)
+
+                        weight = self.conns[node2][node][1] + \
+                            self.conns[node][node1][1]
+                        self.conns[node2][node1] = [1, weight]
+                        self.conns[node1][node2] = [0, None]
+                        del self.conns[node1][node]
+                        del self.conns[node2][node]
+                        del self.conns[node]
+                        continue
+
+                # case 3
+                if self.conns[node][node1][0] == 2:
+                    if self.conns[node][node2][0] == 2:
+                        # store for graphicall route
+                        # representation
+                        self.deleted[node] = node1
+
+                        weight = (self.conns[node1][node][1] + \
+                            self.conns[node][node1][1] + \
+                            self.conns[node][node2][1] + \
+                            self.conns[node2][node][1]) / 2
+                        self.conns[node1][node2] = [2, weight]
+                        self.conns[node2][node1] = [2, weight]
+                        del self.conns[node1][node]
+                        del self.conns[node2][node]
+                        del self.conns[node]
+                        continue
+
+        # maintain previous graph structure
+        self.routing_graph = {}
+        for node in self.conns:
+            self.routing_graph[node] = {}
+            for neighbour in self.conns[node]:
+                if self.conns[node][neighbour][0] != 0:
+                    self.routing_graph[node][neighbour] = \
+                        self.conns[node][neighbour][1]
+
+    def find_graph_node(self, node):
+        last = node
+        while last not in self.graph:
+            last = self.deleted[last]
+        return last
+
+    def show_map(self):
+
+        fig = plt.figure()
+
+        for node in self.routing_graph:
+            plt.plot([data.node_cords[node][1]],
+                     [data.node_cords[node][0]],
+                     "ro", markersize=10)
+            for neighbour in self.graph[node]:
+                plt.plot([data.node_cords[neighbour][1]],
+                         [data.node_cords[neighbour][0]],
+                         "ro", markersize=10)
+                lons = [data.node_cords[node][1],
+                        data.node_cords[neighbour][1]]
+                lats = [data.node_cords[node][0],
+                        data.node_cords[neighbour][0]]
+                plt.plot(lons, lats, color="red",
+                 linewidth=self.graph[node][neighbour] * 10)
+
+        mplleaflet.show(fig=fig)
+
 
 ''' Parse an OSM file '''
 if __name__ == "__main__":
 
+    # filename = 'map_graph1.json'
     filename = 'map.osm'
 
-    data = Map("car", filename)
-    print('loading osm file done !')
+    # data = Map("car", filename, read=True)
 
-    # wirte into json file for easy reading
-    data.write("map_graph1.json")
-    print("done !")
+    data = Map("car", filename)
+
+    # data.read(filename)
+    # data.write("map_graph1.json")
+
+    # tehran nodes 481243, could clean 267986
+    # final result: tehram 215321 nodes (removed 265922 nodes)!
+
+    # example of finding a node
+    node = (35.80367469044131, 51.438760757446296)
+    node = data.find_node(*node)
+    node = data.find_graph_node(node)
+    print("node found: ", node)
+    data.show_map()
