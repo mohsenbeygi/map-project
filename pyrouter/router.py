@@ -71,7 +71,6 @@ class Router:
 
         # # create costs data structure
         # costs = self.get_costs(node1)
-        # # print(self.map.graph['2170382002'])
         # parents = dijkstra(costs,
         #                    self.map.routing_graph,
         #                    node2,
@@ -98,14 +97,47 @@ class Router:
 
         print("displaying path done !")
 
+    def write_node_cords(self, node1, node2):
+        # find the closests node to the
+        # given latitude and longitude
+        self.map.get_distances(node2)
+        node1 = self.map.find_node(*node1)
+        node2 = self.map.find_node(*node2)
+        print(node1, node2)
+        # find nodes in graph made for routing
+        node1 = self.map.find_graph_node(str(node1))
+        node2 = self.map.find_graph_node(str(node2))
+        node_1 = self.map.node_indexes[node1]
+        node_2 = self.map.node_indexes[node2]
+
+        with open("nodes.txt", "w") as file:
+            file.write("{}\n{}".format(node_1, node_2))
+
+    def read_path(self):
+        with open("path.txt", "r") as file:
+            path = file.readline()
+            path = path.strip()
+            path = list(map(str, path.split()))
+
+        for index, node in enumerate(path):
+            node = self.map.indexes_to_nodes[node]
+            path[index] = node
+        path = path[::-1]
+
+
+        self.display_path(path, path[0], path[-1])
+
 
 if __name__ == '__main__':
+    # c++ for fastness !
+    cpp = True
+    cpp_show = True
 
     # enter latitude and longitude for
     # the start and destination positions
     read_cordinations = True
 
-    if not read_cordinations:
+    if not read_cordinations or cpp_show:
         '''
         manual entry of information
         '''
@@ -135,5 +167,14 @@ if __name__ == '__main__':
     # create router object with specific transport type
     router = Router("car")
 
-    # find path and display path on map
-    router.find_path(node1, node2)
+    # print(4376772098 in router.graph)
+
+    if not cpp:
+        # find path and display path on map
+        router.find_path(node1, node2)
+    else:
+        if not cpp_show:
+            router.write_node_cords(node1, node2)
+        else:
+            router.read_path()
+

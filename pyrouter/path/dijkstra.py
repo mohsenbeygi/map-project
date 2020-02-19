@@ -15,7 +15,7 @@ def get_lowest_cost(costs, unvisited):
 
 
 # find the cost and path for all nodes
-def dijkstra(costs, g, des, distances):
+def dijkstra(costs, g, des, distances={}):
     unvisited = list(g.keys())
     parents = {}
     least_cost, least_index = \
@@ -24,9 +24,9 @@ def dijkstra(costs, g, des, distances):
         for node in g[least_cost]:
             # if node in unvisited:
             cost_from = costs[least_cost]
-            cost_from -= distances[least_cost]
             cost_from += g[least_cost][node]
-            cost_from += distances[node]
+            # cost_from -= distances[least_cost]
+            # cost_from += distances[node]
             if costs[node] > cost_from:
                 costs[node] = cost_from
                 parents[node] = least_cost

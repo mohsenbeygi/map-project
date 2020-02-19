@@ -401,7 +401,7 @@ class Map:
             "routing_graph": self.routing_graph,
         }
 
-        with open(filename, 'w')as file:
+        with open(filename, 'w') as file:
             json.dump(self.write_data, file)
 
         print('writing data done !')
@@ -424,6 +424,8 @@ class Map:
         self.routing_graph = data["routing_graph"]
         self.node_cords = data['node_cords']
         self.deleted = data['deleted']
+        self.node_indexes = data['node_indexes']
+        self.indexes_to_nodes = data['indexes_to_nodes']
 
         print('reading data done !')
 

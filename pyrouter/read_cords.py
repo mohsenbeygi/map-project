@@ -10,6 +10,7 @@ def get_download_path():
         return os.path.join(os.path.expanduser('~'),
                             'Downloads')
     else:
+        print("123")
         return os.path.join(os.path.expanduser('~'),
                             'downloads')
 
