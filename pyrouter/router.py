@@ -14,7 +14,7 @@ inf = float('inf')
 file_map = "./maps/map_graph.json"
 file_pathfinding = "./find_path.out"
 file_webcords = "cords.txt"
-file_cords = "cords.txt"
+file_cords = "nodes.txt"
 file_path = "./path.txt"
 
 transport = "car"

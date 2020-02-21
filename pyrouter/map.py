@@ -55,7 +55,7 @@ inf = float('inf')
 
 class Map:
     def __init__(self, transport,
-                 filename='./maps/map.osm', read=False):
+        filename="maps/map.osm", read=False):
 
         # distance of a node to
         # all other nodes (destination)
@@ -347,7 +347,7 @@ class Map:
         nearest_node = None
 
         # ** changed node_cords to routing_graph **
-        for node in self.routing_graph:
+        for node in self.node_cords:
 
             # pythagorean
 
@@ -398,8 +398,8 @@ class Map:
         self.write_data = {
             "node_cords": self.node_cords,
             "graph": self.graph,
-            "deleted": self.deleted,
-            "routing_graph": self.routing_graph,
+            # "deleted": self.deleted,
+            # "routing_graph": self.routing_graph,
         }
 
         with open(filename, 'w') as file:
@@ -422,9 +422,9 @@ class Map:
 
         # create graph
         self.graph = data['graph']
-        self.routing_graph = data["routing_graph"]
+        # self.routing_graph = data["routing_graph"]
         self.node_cords = data['node_cords']
-        self.deleted = data['deleted']
+        # self.deleted = data['deleted']
         self.node_indexes = data['node_indexes']
         self.indexes_to_nodes = data['indexes_to_nodes']
 
@@ -712,6 +712,7 @@ if __name__ == "__main__":
     # example of finding a node
     node = (35.80367469044131, 51.438760757446296)
     node = data.find_node(*node)
-    node = data.find_graph_node(node)
+
+    # node = data.find_graph_node(node)
     print("node found: ", node)
     # data.show_map()
