@@ -10,7 +10,6 @@ def get_download_path():
         return os.path.join(os.path.expanduser('~'),
                             'Downloads')
     else:
-        print("123")
         return os.path.join(os.path.expanduser('~'),
                             'downloads')
 
@@ -80,6 +79,7 @@ def get_node_cords(filename):
     lon1 = get_cords(filename)
     node1 = (lat1, lon1)
     print("node1: ", node1)
+
 
     lat2 = get_cords(filename)
     lon2 = get_cords(filename)

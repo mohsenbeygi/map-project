@@ -1,12 +1,23 @@
-from load.map import Map
+from map import Map
 from path.dijkstra2 import *
 import mplleaflet
 import matplotlib.pyplot as plt
 from read_cords import *
+import os
+import subprocess
 
 
 # infinity for routing
 inf = float('inf')
+
+# file directories
+file_map = "./maps/map_graph.json"
+file_pathfinding = "./find_path.out"
+file_webcords = "cords.txt"
+file_cords = "cords.txt"
+file_path = "./path.txt"
+
+transport = "car"
 
 
 class Router:
@@ -14,10 +25,11 @@ class Router:
         self.transport = transport
         # self.map = Map("car")
         self.map = Map("car", read=True)
-        self.map.read("./maps/map_graph.json")
+        self.map.read(file_map)
 
     def display_path(self, path, node1, node2):
         # showing on map with mplleaflet library
+        print("displaying path ...")
         lons = []
         lats = []
         for i in path:
@@ -37,6 +49,8 @@ class Router:
                  "ro", markersize=12)
         mplleaflet.show(fig=fig)
 
+        print("displaying path done !")
+
     def get_costs(self, start):
         # create costs data structure
         costs = {}
@@ -53,11 +67,11 @@ class Router:
         self.map.get_distances(node2)
         node1 = self.map.find_node(*node1)
         node2 = self.map.find_node(*node2)
-        print(node1, node2)
+        print("node1:", node1, "  node2:", node2)
         # find nodes in graph made for routing
         node1 = self.map.find_graph_node(str(node1))
         node2 = self.map.find_graph_node(str(node2))
-        print(node1, node2)
+        print("node1:", node1, "  node2:", node2)
         print("start and destination nodes found !")
         print("starting pathfinding ...")
 
@@ -91,30 +105,52 @@ class Router:
 
         print("pathfinding done !")
 
-        print("displaying path ...")
-
         self.display_path(path, node1, node2)
 
-        print("displaying path done !")
+    def cpp_find_path(self, node1, node2, file_pathfinding, file_nodes, file_path):
+        print(
+            "writing node cordinations for pathfinding (c++ file) ..."
+            )
+        self.write_node_cords(node1, node2, file_nodes)
+        print(
+            "writing node cordinations for pathfinding (c++ file) done!"
+            )
 
-    def write_node_cords(self, node1, node2):
+        print("starting pathfinding (running c++ file) ...")
+        self.run_file(file_pathfinding)
+        print("pathfinding (running c++ file) done!")
+
+        print("reading path from file (c++ file output) ...")
+        path = self.read_path(file_path)
+        print("reading path from file (c++ file output) done!")
+
+        self.display_path(path, path[0], path[-1])
+
+    def write_node_cords(self, node1, node2, filename):
         # find the closests node to the
         # given latitude and longitude
         self.map.get_distances(node2)
         node1 = self.map.find_node(*node1)
         node2 = self.map.find_node(*node2)
-        print(node1, node2)
+        print("node1:", node1, "  node2:", node2)
         # find nodes in graph made for routing
-        node1 = self.map.find_graph_node(str(node1))
-        node2 = self.map.find_graph_node(str(node2))
+
+        # ** commented below code **
+
+        # node1 = self.map.find_graph_node(str(node1))
+        # node2 = self.map.find_graph_node(str(node2))
+        # print("node1:", node1, "  node2:", node2)
+
         node_1 = self.map.node_indexes[node1]
         node_2 = self.map.node_indexes[node2]
+        print("node1:", node_1, "  node2:", node_2)
 
-        with open("nodes.txt", "w") as file:
+        with open(filename, "w") as file:
             file.write("{}\n{}".format(node_1, node_2))
 
-    def read_path(self):
-        with open("path.txt", "r") as file:
+    def read_path(self, filename):
+        print("reading path from file ...")
+        with open(filename, "r") as file:
             path = file.readline()
             path = path.strip()
             path = list(map(str, path.split()))
@@ -124,20 +160,25 @@ class Router:
             path[index] = node
         path = path[::-1]
 
+        print("reading path from file done!")
 
-        self.display_path(path, path[0], path[-1])
+        return path
+
+    def run_file(self, filename):
+        proc = subprocess.Popen([filename])
+        proc.wait()
+        return
 
 
 if __name__ == '__main__':
     # c++ for fastness !
     cpp = True
-    cpp_show = True
 
     # enter latitude and longitude for
     # the start and destination positions
     read_cordinations = True
 
-    if not read_cordinations or cpp_show:
+    if not read_cordinations:
         '''
         manual entry of information
         '''
@@ -161,20 +202,21 @@ if __name__ == '__main__':
         read information from file
         '''
 
-        node1, node2 = get_node_cords("cords.txt")
+        node1, node2 = get_node_cords(file_webcords)
 
 
     # create router object with specific transport type
-    router = Router("car")
-
-    # print(4376772098 in router.graph)
+    router = Router(transport)
 
     if not cpp:
         # find path and display path on map
         router.find_path(node1, node2)
-    else:
-        if not cpp_show:
-            router.write_node_cords(node1, node2)
-        else:
-            router.read_path()
 
+    else:
+        router.cpp_find_path(
+            node1,
+            node2,
+            file_pathfinding,
+            file_cords,
+            file_path
+            )

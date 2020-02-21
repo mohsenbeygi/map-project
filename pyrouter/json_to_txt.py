@@ -5,7 +5,7 @@ def json_to_txt(jsonfile, txtfile):
 
     with open(jsonfile, "r") as file:
         data = json.load(file)
-        routing_graph = data["graph"]
+        routing_graph = data["routing_graph"]
         node_cords = data["node_cords"]
         # deleted = data["deleted"]
         # graph = data["graph"]
