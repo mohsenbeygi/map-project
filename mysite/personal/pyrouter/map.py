@@ -2,8 +2,6 @@ import os
 import xml.etree.ElementTree as etree
 import json
 import math
-from . import mplleaflet
-import matplotlib.pyplot as plt
 # import sys
 # sys.path.insert(0,'.')
 
@@ -727,27 +725,6 @@ class Map:
             last = self.deleted[str(last)]
         return last
 
-    def show_map(self):
-
-        fig = plt.figure()
-
-        for node in self.routing_graph:
-            plt.plot([data.node_cords[node][1]],
-                     [data.node_cords[node][0]],
-                     "ro", markersize=10)
-            for neighbour in self.graph[node]:
-                plt.plot([data.node_cords[neighbour][1]],
-                         [data.node_cords[neighbour][0]],
-                         "ro", markersize=10)
-                lons = [data.node_cords[node][1],
-                        data.node_cords[neighbour][1]]
-                lats = [data.node_cords[node][0],
-                        data.node_cords[neighbour][0]]
-                plt.plot(lons, lats, color="red",
-                 linewidth=self.graph[node][neighbour] * 10)
-
-        mplleaflet.show(fig=fig)
-
 
 ''' Parse an OSM file '''
 if __name__ == "__main__":
@@ -763,7 +740,7 @@ if __name__ == "__main__":
     data.write("map_iran.json")
 
     # tehran nodes 481243, could clean 267986
-    # final result: tehram 215321 nodes (removed 265922 nodes)!
+    # final result: tehram 215321 nodes (removed 265922 nodes)
 
     # example of finding a node
     node = (35.80367469044131, 51.438760757446296)
@@ -771,4 +748,3 @@ if __name__ == "__main__":
 
     # node = data.find_graph_node(node)
     print("node found: ", node)
-    # data.show_map()
