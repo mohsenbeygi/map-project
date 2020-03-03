@@ -1,0 +1,10 @@
+#mapid {
+    height: 88vh;
+    }
+
+.custom-popup .leaflet-popup-content-wrapper {
+  background:#2c3e50;
+  color:#fff;
+  font-size:20px;
+  line-height:24px;
+}
