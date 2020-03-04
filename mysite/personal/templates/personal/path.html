@@ -60,7 +60,7 @@
             content: '\00bb';
             position: absolute;
             opacity: 0;
-            top: -0.5vh;
+            top: 0vh;
             right: -5vw;
             transition: 0.5s;
         }
@@ -106,7 +106,29 @@
 
     {$ path $}
 
+    const myCustomColour = '#583470'
+
+    const markerHtmlStyles = `
+        background-color: ${myCustomColour};
+        width: 3rem;
+        height: 3rem;
+        display: block;
+        left: -1.5rem;
+        top: -1.5rem;
+        position: relative;
+        border-radius: 3rem 3rem 0;
+        transform: rotate(45deg);
+        border: 1px solid #FFFFFF`
+
     <script>
+
+
+        // reset function
+        function stop_showing_path() {
+            window.location.replace("/");
+        }
+
+
         // getting osm map
         const mymap = L.map('mapid').setView([35.7352576,51.3827949], 11.9);
         const attribution =
@@ -120,6 +142,44 @@
         var popup = L.popup();
 
         // setting variables (for knowing which one to set)
+        const dest_marker_style = `
+            background-color: #ff0000;
+            width: 3rem;
+            height: 3rem;
+            display: block;
+            left: -1.5rem;
+            top: -2rem;
+            position: relative;
+            border-radius: 3rem 3rem 0;
+            transform: rotate(45deg);
+            border: 1px solid #FFFFFF`
+
+        const source_marker_style = `
+            background-color: #11ff00;
+            width: 3rem;
+            height: 3rem;
+            display: block;
+            left: -1.5rem;
+            top: -2rem;
+            position: relative;
+            border-radius: 3rem 3rem 0;
+            transform: rotate(45deg);
+            border: 1px solid #FFFFFF`
+
+        const dest_marker_icon = L.divIcon({
+            iconAnchor: [0, 24],
+            labelAnchor: [-6, 0],
+            popupAnchor: [0, -36],
+            html: `<span style="${dest_marker_style}" />`
+        })
+
+        const source_marker_icon = L.divIcon({
+            iconAnchor: [0, 24],
+            labelAnchor: [-6, 0],
+            popupAnchor: [0, -36],
+            html: `<span style="${source_marker_style}" />`
+        })
+
         var setting_dest = false;
         var setting_source = false;
 
@@ -153,9 +213,16 @@
 
         polyline.addTo(mymap);
 
-        function stop_showing_path() {
-            window.location.replace("/");
-        }
+        // add markers and popups on the paths
+        var source_marker = L.marker(path[0], {
+            icon: dest_marker_icon
+        }).addTo(mymap);
+        var dest_marker = L.marker(path[path.length - 1], {
+            icon: source_marker_icon
+        }).addTo(mymap);
+
+        source_marker.bindPopup("source");
+        dest_marker.bindPopup("destination");
 
     </script>
 
