@@ -7,15 +7,32 @@ inf = float('inf')
 
 # file directories
 file_map = "maps/map_graph.json"
-file_map = os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_map))
-file_pathfinding = "find_path.out"
-file_pathfinding = os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_pathfinding))
+file_map = \
+    os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_map))
 file_webcords = "cords.txt"
-file_webcords = os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_webcords))
+file_webcords = \
+    os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_webcords))
 file_cords = "nodes.txt"
-file_cords = os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_cords))
+file_cords = \
+    os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_cords))
 file_path = "path.txt"
-file_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_path))
+file_path = \
+    os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_path))
+
+"""
+windows ("nt")  =>  find_path.exe
+mac or linux ("posix")  =>  find_path.out
+"""
+if os.name == "posix":
+    # mac or linux
+    file_pathfinding = "find_path.out"
+    file_pathfinding = \
+        os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_pathfinding))
+elif os.name == "nt":
+    # windows
+    file_pathfinding = "find_path.exe"
+    file_pathfinding = \
+        os.path.abspath(os.path.join(os.path.dirname( __file__ ), file_pathfinding))
 
 cpp_graph_data = "graph_data.txt"
 cpp_graph_data = \
