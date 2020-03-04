@@ -9,6 +9,7 @@ def index(request):
     return render(request, 'personal/map.html')
 
 def display_path(request, data):
+    # print("\n\n\n\n", data, "\n\n\n\n")
     data = list(map(float, data.split(",")))
     path = router.cpp_find_path(
         data[:2],
