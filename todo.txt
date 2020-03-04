@@ -1,9 +1,2 @@
-- get a graph structure from a real world map (most likely from osm)
-
-- path finding algorithm (routing)
-
 - traffic
-
-- graphical presentation
  
-Wed 30 Oct  ~  Tue 3 Dec 
