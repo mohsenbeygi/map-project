@@ -9,3 +9,6 @@ python manage.py runserver
 
 Then go to a browser and go to your local ip (e.g. 127.0.0.1:8000).
 Next choose a source and destination and start pathfinding.
+<!-- https://github.com/mohsenbeygi/map-project/tree/master/mysite
+
+![alt text](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)           -->
