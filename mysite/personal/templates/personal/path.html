@@ -215,10 +215,10 @@
 
         // add markers and popups on the paths
         var source_marker = L.marker(path[0], {
-            icon: dest_marker_icon
+            icon: source_marker_icon
         }).addTo(mymap);
         var dest_marker = L.marker(path[path.length - 1], {
-            icon: source_marker_icon
+            icon: dest_marker_icon
         }).addTo(mymap);
 
         source_marker.bindPopup("source");
