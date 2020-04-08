@@ -9,7 +9,7 @@ between two spots on a map.
 
 
 
-- ُThen for usage, run manage.py in mysite directory. (python manage.py runserver)
+- Then for usage, run manage.py in mysite directory. (python manage.py runserver)
 ![alt text](https://raw.githubusercontent.com/mohsenbeygi/map-project/master/tutorial/2a.png)
 
 
