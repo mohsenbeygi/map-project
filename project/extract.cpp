@@ -247,23 +247,6 @@ int main()
         }
     }
 
-    // int count;
-    // cin >> count;
-    // list < pair <int, int> > *adj;
-    // adj = new list < pair <int, int> >[count];
-    // adj[0].push_back(make_pair(1, 2));
-    // adj[0].push_back(make_pair(4, 3));
-    // cout << "\n";
-    // list< pair<int, int> >::iterator i;
-    // for(i = adj[0].begin(); i != adj[0].end(); ++i) 
-    // {
-    //     cout << "p  " << (*i).first << ", " << (*i).second << "\n"; 
-    // }
-    // for (int i = 0; i < ways.size(); i++)
-    // {
-    //     cout << ways[i].highway << "\n";
-    // }
-
     // write the data parsed as a graph to a file
 
     ofstream map_file;
